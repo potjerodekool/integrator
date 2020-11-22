@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<rss version="2.0">
+  <channel>
+    <title>Wikipedia Nederland - Nieuwe artikelen</title>
+    <link>//nl.wikipedia.org/</link>
+    <description>Deze webfeed notificeert u van nieuwe artikelen op Wikipedia NL.</description>
+    <item>
+      <title>RSS</title>
+      <link>//nl.wikipedia.org/wiki/Really_Simple_Syndication</link>
+      <description>RSS, of Really Simple Syndication, is een familie van webfeedformaten.</description>
+    </item>
+    <item>
+      <title>Atom</title>
+      <link>//nl.wikipedia.org/wiki/Atom</link>
+      <description>Atom is een soort webfeed, net als RSS.</description>
+    </item>
+  </channel>
+</rss>
