@@ -1,18 +1,23 @@
 package com.github.potjerodekool.integrator.api
 
 import com.github.potjerodekool.integrator.api.model.CreateSyndFeedSubscriptionRequest
-import com.github.potjerodekool.integrator.api.model.SyncFeedSubscriptionResponseda
+import com.github.potjerodekool.integrator.api.model.SyncFeedSubscriptionResponse
 import com.github.potjerodekool.integrator.api.model.UpdateSyndFeedSubscriptionRequest
 import com.github.potjerodekool.integrator.data.model.SyndFeedSubscriptionModel
+import com.github.potjerodekool.integrator.service.FeedProcessorService
 import com.github.potjerodekool.integrator.service.SyndFeedSubscriptionService
 import io.swagger.annotations.Api
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody
+import java.io.OutputStreamWriter
 
 @Api
 @RestController
-class SyndFeedController(private val syndFeedSubscriptionService: SyndFeedSubscriptionService) {
+@CrossOrigin
+class SyndFeedController(private val syndFeedSubscriptionService: SyndFeedSubscriptionService,
+                         private val feedProcessorService: FeedProcessorService) {
 
     @GetMapping("/syndfeed/subscriptions", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getSubscriptions(): List<SyndFeedSubscriptionModel> {
@@ -26,16 +31,16 @@ class SyndFeedController(private val syndFeedSubscriptionService: SyndFeedSubscr
     }
 
     @PostMapping("/syndfeed/subscriptions", consumes = [MediaType.APPLICATION_JSON_VALUE])
-    fun addSubscription(@RequestBody request: CreateSyndFeedSubscriptionRequest): SyncFeedSubscriptionResponseda {
+    fun addSubscription(@RequestBody request: CreateSyndFeedSubscriptionRequest): SyncFeedSubscriptionResponse {
         val id = syndFeedSubscriptionService.addSubscription(request.uri)
-        return SyncFeedSubscriptionResponseda(id, request.uri)
+        return SyncFeedSubscriptionResponse(id, request.uri, true)
     }
 
     @PatchMapping("/syndfeed/subscriptions/{id}", consumes = [MediaType.APPLICATION_JSON_VALUE])
     fun updateSubscription(@PathVariable("id") id: Int,
-                           @RequestBody request: UpdateSyndFeedSubscriptionRequest): SyncFeedSubscriptionResponseda {
+                           @RequestBody request: UpdateSyndFeedSubscriptionRequest): SyncFeedSubscriptionResponse {
         syndFeedSubscriptionService.updateSubscription(id, request.uri)
-        return SyncFeedSubscriptionResponseda(id, request.uri)
+        return SyncFeedSubscriptionResponse(id, request.uri, true)
     }
 
     @DeleteMapping("/syndfeed/subscriptions/{id}")
@@ -48,5 +53,19 @@ class SyndFeedController(private val syndFeedSubscriptionService: SyndFeedSubscr
         }
     }
 
+    @GetMapping("/syncfeed/sync")
+    fun processFeeds(): ResponseEntity<StreamingResponseBody> {
+        val stream = StreamingResponseBody { out ->
+            val writer = OutputStreamWriter(out)
+            feedProcessorService.sync(writer)
+            out.close()
+        }
+
+        return ResponseEntity.ok(stream)
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.TEXT_PLAIN)
+                .body(stream)
+    }
 
 }

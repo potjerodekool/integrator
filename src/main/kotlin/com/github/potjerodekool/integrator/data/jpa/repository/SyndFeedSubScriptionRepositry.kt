@@ -12,6 +12,6 @@ import org.springframework.stereotype.Repository
 @Repository
 interface SyndFeedSubScriptionRepositry : JpaRepository<SyndFeedSubscription, Int> {
 
-    @Query("FROM SyndFeedSubscription WHERE id > :id ORDER BY id ASC")
+    @Query("FROM SyndFeedSubscription WHERE id > :id AND active = true ORDER BY id ASC")
     fun findAfterIdOrderedById(@Param("id") id: Int, pageable: Pageable): Slice<SyndFeedSubscription>
 }

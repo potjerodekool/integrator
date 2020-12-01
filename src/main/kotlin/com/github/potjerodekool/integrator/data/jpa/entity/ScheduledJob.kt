@@ -17,6 +17,11 @@ data class ScheduledJob(
         @Column(name = "finished")
         var finished: LocalDateTime? = null,
         @Column(name = "busy", nullable = false)
-        var busy: Boolean = false,
+        var busy: Boolean = false) {
+
         @Column(name = "message")
-        var message: String? = null)
+        var message: String? = null
+        set(value) {
+                field = if (value == null || value.length <= 255) value else value.substring(0, 255)
+        }
+}

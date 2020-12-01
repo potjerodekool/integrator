@@ -2,10 +2,11 @@ package com.github.potjerodekool.integrator.jwt.model
 
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
-class AuthenticatedUser(private val token: String): Authentication {
+class AuthenticatedUser(private val token: String,
+                        private val userName: String): Authentication {
 
     override fun getName(): String {
-        return ""
+        return userName
     }
 
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {

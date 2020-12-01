@@ -4,13 +4,19 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
-    <changeSet id="add-sync feed subscription table" author="Evert Tigchelaar">
-        <createTable tableName="synd_feed_subscription">
+    <changeSet id="add-feedentry table" author="Evert Tigchelaar">
+        <createTable tableName="feedentry">
             <column name="id" autoIncrement="true" type="INTEGER">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="uri" type="VARCHAR(250)">
-                <constraints nullable="false" unique="true" />
+            <column name="link" type="VARCHAR(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="description" type="VARCHAR(2000)">
+                <constraints nullable="false" />
+            </column>
+            <column name="pubdate" type="DATETIME">
+                <constraints nullable="false" />
             </column>
         </createTable>
     </changeSet>

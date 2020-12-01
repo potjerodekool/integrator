@@ -2,8 +2,8 @@ package com.github.potjerodekool.integrator.jwt
 
 import com.github.potjerodekool.integrator.jwt.model.AuthenticatedUser
 import io.jsonwebtoken.Claims
-import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.Jwts
+import org.springframework.http.HttpMethod
 import org.springframework.security.core.context.SecurityContextHolder
 import java.util.*
 import javax.servlet.Filter
@@ -18,27 +18,29 @@ class SsoFilter(private val secretKey: String): Filter {
 
     override fun doFilter(request: ServletRequest?, response: ServletResponse, chain: FilterChain) {
         val httpServletRequest = request as HttpServletRequest
-        val path = httpServletRequest.servletPath
 
-        httpServletRequest.getHeaderNames().asIterator().forEach {header ->
-            println("$header = ${httpServletRequest.getHeader(header)}")
-        }
+        if (httpServletRequest.method == HttpMethod.OPTIONS.name) {
+            chain.doFilter(request, response)
+        } else {
+            var authToken: String? = httpServletRequest.getHeader("Authorization")
 
-        var authToken: String? = httpServletRequest.getHeader("authorization")
+            if (authToken != null) {
+                if (authToken.startsWith("Bearer ")) {
+                    authToken = authToken.substring(7)
+                }
 
-        if (authToken != null) {
-            if (authToken.startsWith("Bearer ")) {
-                authToken = authToken.substring(7)
-            }
+                val claims = decodeJWT(authToken)
 
-            if (isTokenExpired(authToken).not()) {
-                SecurityContextHolder.getContext().authentication = AuthenticatedUser(authToken)
-                chain.doFilter(request, response)
+                if (claims != null && isTokenExpired(claims).not()) {
+                    val userName = claims.subject
+                    SecurityContextHolder.getContext().authentication = AuthenticatedUser(authToken, userName)
+                    chain.doFilter(request, response)
+                } else {
+                    forBidden(response)
+                }
             } else {
                 forBidden(response)
             }
-        } else {
-            chain.doFilter(request, response)
         }
     }
 
@@ -46,28 +48,23 @@ class SsoFilter(private val secretKey: String): Filter {
         (response as HttpServletResponse).sendError(HttpServletResponse.SC_FORBIDDEN)
     }
 
-    private fun isTokenExpired(token: String): Boolean {
+    private fun isTokenExpired(claims: Claims): Boolean {
         return try {
-            val expiration = getExpirationDateFromToken(token)
+            val expiration = claims.expiration
             expiration!!.before(Date())
         } catch (e: Exception) {
             true
         }
     }
 
-    private fun getClaimsFromToken(token: String): Claims {
-        return decodeJWT(token)
-    }
-
-    private fun getExpirationDateFromToken(token: String): Date? {
-        val claims = getClaimsFromToken(token)
-        return claims.expiration
-    }
-
-    private fun decodeJWT(jwt: String?): Claims {
-        //This line will throw an exception if it is not a signed JWS (as expected)
-        return Jwts.parser()
-            .setSigningKey(DatatypeConverter.parseBase64Binary(secretKey))
-            .parseClaimsJws(jwt).body
+    private fun decodeJWT(jwt: String?): Claims? {
+        return try {
+            //This line will throw an exception if it is not a signed JWS (as expected)
+            Jwts.parser()
+                    .setSigningKey(DatatypeConverter.parseBase64Binary(secretKey))
+                    .parseClaimsJws(jwt).body
+        } catch (e: Exception) {
+            null
+        }
     }
 }
