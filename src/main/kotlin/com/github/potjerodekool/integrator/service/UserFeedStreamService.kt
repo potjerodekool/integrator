@@ -2,29 +2,42 @@ package com.github.potjerodekool.integrator.service
 
 import com.github.potjerodekool.integrator.api.model.UserFeedStreamRequest
 import com.github.potjerodekool.integrator.data.jpa.entity.UserFeedStream
+import com.github.potjerodekool.integrator.data.jpa.repository.SyndFeedSubscriptionRepository
 import com.github.potjerodekool.integrator.data.jpa.repository.UserFeedStreamRepository
-import com.github.potjerodekool.integrator.data.jpa.repository.UserRepository
-import com.github.potjerodekool.integrator.jwt.JwtUtil
+import com.github.potjerodekool.integrator.jwt.getUser
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
 class UserFeedStreamService(private val userFeedStreamRepository: UserFeedStreamRepository,
-                            private val userService: UserService) {
+                            private val userService: UserService,
+                            private val syndFeedSubscriptionRepository: SyndFeedSubscriptionRepository) {
 
     fun getUserFeedStreams(): List<UserFeedStream> {
-        val userName = JwtUtil.getUser().name
-        return userFeedStreamRepository.findByUserId(userName)
+        val userUUID = getUser().name
+        return userFeedStreamRepository.findByUuid(userUUID)
+    }
+
+    fun getUserFeedStreamById(id: Int): UserFeedStream? {
+        val userUUID = getUser().name
+        return userFeedStreamRepository.findByUserAndId(userUUID, id)
     }
 
     @Transactional
     fun createUserFeedStream(userFeedStreamRequest: UserFeedStreamRequest): Int {
         val user = userService.findCurrentUser()
+
+        //TODO what to do if subscription it not found?
+        //For now will filter them out.
+        val subscriptions = userFeedStreamRequest.subscriptions
+                .mapNotNull { syndFeedSubscriptionRepository.findByUri(it.uri) }
+                .toMutableList()
+
         return userFeedStreamRepository.save(
                 UserFeedStream(
                         user = user,
                         name = userFeedStreamRequest.name,
-                        subscriptions = mutableListOf()
+                        subscriptions = subscriptions
                 )
         ).id!!
     }

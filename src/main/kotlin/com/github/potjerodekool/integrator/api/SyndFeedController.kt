@@ -1,7 +1,7 @@
 package com.github.potjerodekool.integrator.api
 
 import com.github.potjerodekool.integrator.api.model.CreateSyndFeedSubscriptionRequest
-import com.github.potjerodekool.integrator.api.model.SyncFeedSubscriptionResponse
+import com.github.potjerodekool.integrator.api.model.SyndFeedSubscriptionResponse
 import com.github.potjerodekool.integrator.api.model.UpdateSyndFeedSubscriptionRequest
 import com.github.potjerodekool.integrator.data.model.SyndFeedSubscriptionModel
 import com.github.potjerodekool.integrator.service.FeedProcessorService
@@ -31,16 +31,16 @@ class SyndFeedController(private val syndFeedSubscriptionService: SyndFeedSubscr
     }
 
     @PostMapping("/syndfeed/subscriptions", consumes = [MediaType.APPLICATION_JSON_VALUE])
-    fun addSubscription(@RequestBody request: CreateSyndFeedSubscriptionRequest): SyncFeedSubscriptionResponse {
+    fun addSubscription(@RequestBody request: CreateSyndFeedSubscriptionRequest): SyndFeedSubscriptionResponse {
         val id = syndFeedSubscriptionService.addSubscription(request.uri)
-        return SyncFeedSubscriptionResponse(id, request.uri, true)
+        return SyndFeedSubscriptionResponse(id, request.uri, true)
     }
 
     @PatchMapping("/syndfeed/subscriptions/{id}", consumes = [MediaType.APPLICATION_JSON_VALUE])
     fun updateSubscription(@PathVariable("id") id: Int,
-                           @RequestBody request: UpdateSyndFeedSubscriptionRequest): SyncFeedSubscriptionResponse {
+                           @RequestBody request: UpdateSyndFeedSubscriptionRequest): SyndFeedSubscriptionResponse {
         syndFeedSubscriptionService.updateSubscription(id, request.uri)
-        return SyncFeedSubscriptionResponse(id, request.uri, true)
+        return SyndFeedSubscriptionResponse(id, request.uri, true)
     }
 
     @DeleteMapping("/syndfeed/subscriptions/{id}")

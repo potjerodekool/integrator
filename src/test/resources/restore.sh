@@ -1,0 +1,1 @@
+mysql -utest -ptest test < test-dump.sql

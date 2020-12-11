@@ -8,7 +8,7 @@ import javax.persistence.*
 data class ScheduledJob(
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
-        @Column(name = "id", nullable = false)
+        @Column(name = "scheduldjob_id", nullable = false)
         var id: Int? = null,
         @Column(name = "jobname", nullable = false, unique = true)
         var jobName: String,
@@ -17,11 +17,12 @@ data class ScheduledJob(
         @Column(name = "finished")
         var finished: LocalDateTime? = null,
         @Column(name = "busy", nullable = false)
-        var busy: Boolean = false) {
+        var busy: Boolean = false)
+{
 
         @Column(name = "message")
         var message: String? = null
         set(value) {
-                field = if (value == null || value.length <= 255) value else value.substring(0, 255)
+                field = if (value == null || value.length <= 250) value else value.substring(0, 255)
         }
 }

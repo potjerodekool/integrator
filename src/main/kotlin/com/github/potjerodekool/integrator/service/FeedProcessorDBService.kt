@@ -4,7 +4,6 @@ import com.github.potjerodekool.integrator.data.jpa.entity.FeedEntry
 import com.github.potjerodekool.integrator.data.jpa.entity.FeedEntryCategory
 import com.github.potjerodekool.integrator.data.jpa.entity.ScheduledJob
 import com.github.potjerodekool.integrator.data.jpa.entity.SyndFeedSubscription
-import com.github.potjerodekool.integrator.data.jpa.repository.FeedEntryCategoryRepository
 import com.github.potjerodekool.integrator.data.jpa.repository.FeedEntryRepository
 import com.github.potjerodekool.integrator.data.jpa.repository.ScheduledJobRepository
 import com.github.potjerodekool.integrator.util.toLocalDateTime
@@ -15,8 +14,7 @@ import java.time.LocalDateTime
 
 @Service
 class FeedProcessorDBService(private val scheduledJobRepository: ScheduledJobRepository,
-                             private val feedEntryRepository: FeedEntryRepository,
-                             private val feedEntryCategoryRepository: FeedEntryCategoryRepository) {
+                             private val feedEntryRepository: FeedEntryRepository) {
 
     private companion object {
         private const val JOB_NAME = "feedjob"
@@ -24,7 +22,9 @@ class FeedProcessorDBService(private val scheduledJobRepository: ScheduledJobRep
 
     fun canStartJob(): Boolean {
         val job = scheduledJobRepository.findByJobName(JOB_NAME)
-        return job == null || !job.busy
+        val started = job?.started
+        return if (job == null || !job.busy || started == null) true
+            else started.isBefore(LocalDateTime.now().minusHours(4))
     }
 
     @Transactional

@@ -1,0 +1,1 @@
+mysqldump -utest -ptest --databases test > test-dump.sql

@@ -9,9 +9,13 @@ import org.springframework.stereotype.Repository
 @Repository
 interface UserFeedStreamRepository: JpaRepository<UserFeedStream, Int> {
 
-    @Query("FROM UserFeedStream WHERE user.externalUserId = :userId")
-    fun findByUserId(@Param("userId") userId: String): List<UserFeedStream>
+    @Query("FROM UserFeedStream WHERE user.uuid = :uuid")
+    fun findByUuid(@Param("uuid") uuid: String): List<UserFeedStream>
 
-    @Query("FROM UserFeedStream WHERE user.externalUserId = :userId AND name = :name")
-    fun findByUserAndName(@Param("userId") userId: String, @Param("name") name: String): UserFeedStream?
+    @Query("FROM UserFeedStream WHERE user.uuid = :uuid AND name = :name")
+    fun findByUserAndName(@Param("uuid") uuid: String, @Param("name") name: String): UserFeedStream?
+
+    @Query("""FROM UserFeedStream us inner join fetch us.subscriptions s
+        WHERE us.user.uuid = :uuid AND us.id = :id""")
+    fun findByUserAndId(@Param("uuid") uuid: String, @Param("id") id: Int): UserFeedStream?
 }

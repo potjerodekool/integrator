@@ -3,7 +3,7 @@ package com.github.potjerodekool.integrator.service
 import com.github.potjerodekool.integrator.data.jpa.entity.FeedEntry
 import com.github.potjerodekool.integrator.data.jpa.repository.FeedEntryRepository
 import com.github.potjerodekool.integrator.data.jpa.repository.UserFeedStreamRepository
-import com.github.potjerodekool.integrator.jwt.JwtUtil
+import com.github.potjerodekool.integrator.jwt.getUser
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -14,8 +14,8 @@ class FeedEntryService(private val feedEntryRepository: FeedEntryRepository,
                        private val userFeedStreamRepository: UserFeedStreamRepository) {
 
     fun findFeedEntries(page: Int): Page<FeedEntry> {
-        val userName = JwtUtil.getUser().name
-        val subscriptions = userFeedStreamRepository.findByUserId(userName)
+        val userName = getUser().name
+        val subscriptions = userFeedStreamRepository.findByUuid(userName)
                 .flatMap { it.subscriptions }
 
         return feedEntryRepository.findBySubscriptions(
@@ -25,7 +25,7 @@ class FeedEntryService(private val feedEntryRepository: FeedEntryRepository,
     }
 
     fun findFeedEntries(name: String, page: Int): Page<FeedEntry> {
-        val userName = JwtUtil.getUser().name
+        val userName = getUser().name
         val userFeedStream = userFeedStreamRepository.findByUserAndName(userName, name)
 
         return if (userFeedStream == null) {

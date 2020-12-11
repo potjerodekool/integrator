@@ -9,5 +9,5 @@ class User(
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         @Column(name = "user_id", nullable = false)
         var id: Int? = null,
-        @Column(name = "ext_user_id", nullable = false)
-        val externalUserId: String)
+        @Column(name = "uuid", nullable = false, unique = true)
+        val uuid: String)

@@ -1,6 +1,6 @@
 package com.github.potjerodekool.integrator.api
 
-import com.github.potjerodekool.integrator.api.model.SyncFeedSubscriptionResponse
+import com.github.potjerodekool.integrator.api.model.SyndFeedSubscriptionResponse
 import com.github.potjerodekool.integrator.api.model.UserFeedStreamModel
 import com.github.potjerodekool.integrator.api.model.UserFeedStreamRequest
 import com.github.potjerodekool.integrator.data.jpa.entity.SyndFeedSubscription
@@ -31,8 +31,8 @@ class UserController(private val userFeedStreamService: UserFeedStreamService) {
         )
     }
 
-    private fun toSyncFeedSubscriptionResponseda(subscription: SyndFeedSubscription): SyncFeedSubscriptionResponse {
-        return SyncFeedSubscriptionResponse(
+    private fun toSyncFeedSubscriptionResponseda(subscription: SyndFeedSubscription): SyndFeedSubscriptionResponse {
+        return SyndFeedSubscriptionResponse(
                 subscription.id!!,
                 subscription.uri,
                 subscription.active
@@ -54,5 +54,4 @@ class UserController(private val userFeedStreamService: UserFeedStreamService) {
     fun deleteUserFeedStream(@PathVariable("id") id: Int) {
         userFeedStreamService.deleteUserFeedStream(id)
     }
-
 }

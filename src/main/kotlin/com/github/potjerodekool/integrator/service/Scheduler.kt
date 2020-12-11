@@ -1,6 +1,5 @@
 package com.github.potjerodekool.integrator.service
 
-import com.github.potjerodekool.integrator.rss.RssMessageSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory
 //import org.springframework.integration.dsl.IntegrationFlows
@@ -8,7 +7,6 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory
 //import org.springframework.integration.dsl.context.IntegrationFlowBeanPostProcessor
 //import org.springframework.messaging.MessageHandler
 import org.springframework.stereotype.Service
-import java.util.*
 
 @Service
 class Scheduler {

@@ -7,7 +7,7 @@ import javax.persistence.*
 data class SyndFeedSubscription (
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
-        @Column(name = "id", nullable = false)
+        @Column(name = "synd_feed_subscription_id", nullable = false)
         var id: Int? = null,
         @Column(name = "uri", nullable = false, unique = true)
         var uri: String,

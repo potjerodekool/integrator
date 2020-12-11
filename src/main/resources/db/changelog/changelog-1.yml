@@ -1,0 +1,219 @@
+databaseChangeLog:
+  -  changeSet:
+       id: create-scheduldjob-table
+       author: Evert Tigchelaar
+       changes:
+         -  createTable:
+              columns:
+                -  column:
+                     name: scheduldjob_id
+                     type: INTEGER
+                     autoIncrement: true
+                     constraints:
+                       primaryKey: true
+                -  column:
+                     name: jobname
+                     type: VARCHAR(250)
+                     constraints:
+                       nullable: false
+                       unique: true
+                -  column:
+                     name: started
+                     type: DATETIME
+                -  column:
+                     name: finished
+                     type: DATETIME
+                -  column:
+                     name: busy
+                     type: BOOLEAN
+                     valueBoolean: false
+                     constraints:
+                       nullable: false
+                -  column:
+                     name: message
+                     type: VARCHAR(250)
+              tableName: scheduldjob
+
+  -  changeSet:
+       id: create-synd_feed_subscription-table
+       author: Evert Tigchelaar
+       changes:
+         -  createTable:
+              columns:
+                -  column:
+                     name: synd_feed_subscription_id
+                     type: INTEGER
+                     autoIncrement: true
+                     constraints:
+                       primaryKey: true
+                -  column:
+                     name: uri
+                     type: VARCHAR(250)
+                     constraints:
+                       nullable: false
+                       unique: true
+                -  column:
+                    name: active
+                    type: BOOLEAN
+                    constraints:
+                      nullable: false
+              tableName: synd_feed_subscription
+
+  -  changeSet:
+       id: create-feedentry-table
+       author: Evert Tigchelaar
+       changes:
+         -  createTable:
+              columns:
+                -  column:
+                     name: feedentry_id
+                     type: INTEGER
+                     autoIncrement: true
+                     constraints:
+                       primaryKey: true
+                -  column:
+                     name: title
+                     type: VARCHAR(250)
+                     constraints:
+                       nullable: false
+                       unique: true
+                -  column:
+                     name: link
+                     type: VARCHAR(250)
+                     constraints:
+                       nullable: false
+                       unique: true
+                -  column:
+                     name: description
+                     type: VARCHAR(2000)
+                     constraints:
+                       nullable: false
+                -  column:
+                     name: pubddate
+                     type: DATETIME
+                     constraints:
+                       nullable: false
+                -  column:
+                     name: subscription_id
+                     type: INTEGER
+                     constraints:
+                       nullable: false
+                       referencedColumnNames: synd_feed_subscription_id
+                       referencedTableName: synd_feed_subscription
+                       foreignKeyName: feedentry_synd_feed_subscription
+              tableName: feedentry
+
+  -  changeSet:
+       id: create-feedentry_category-table
+       author: Evert Tigchelaar
+       changes:
+         -  createTable:
+              columns:
+                -  column:
+                     name: feedentry_category_id
+                     type: INTEGER
+                     autoIncrement: true
+                     constraints:
+                       primaryKey: true
+                -  column:
+                     name: name
+                     type: VARCHAR(250)
+                     constraints:
+                       nullable: false
+                       unique: true
+              tableName: feedentry_category
+
+  -  changeSet:
+       id: create-feedentry_to_category-table
+       author: Evert Tigchelaar
+       changes:
+         -  createTable:
+              columns:
+                -  column:
+                     name: feedentry_id
+                     type: INTEGER
+                     constraints:
+                       nullable: false
+                       referencedColumnNames: feedentry_id
+                       referencedTableName: feedentry
+                       foreignKeyName: feedentry_to_category_feedentry
+                -  column:
+                     name: category_id
+                     type: INTEGER
+                     constraints:
+                       nullable: false
+                       referencedColumnNames: feedentry_category_id
+                       referencedTableName: feedentry_category
+                       foreignKeyName: feedentry_to_category_feedentry_category
+              tableName: feedentry_to_category
+
+  -  changeSet:
+       id: create-user-table
+       author: Evert Tigchelaar
+       changes:
+         -  createTable:
+              columns:
+                -  column:
+                     name: user_id
+                     type: INTEGER
+                     autoIncrement: true
+                     constraints:
+                       primaryKey: true
+                -  column:
+                     name: uuid
+                     type: VARCHAR(250)
+                     constraints:
+                       nullable: false
+                       unique: true
+              tableName: user
+
+  -  changeSet:
+       id: create-user_feed_stream-table
+       author: Evert Tigchelaar
+       changes:
+         -  createTable:
+              columns:
+                -  column:
+                     name: user_feed_stream_id
+                     type: INTEGER
+                     autoIncrement: true
+                     constraints:
+                       primaryKey: true
+                -  column:
+                     name: user_id
+                     type: INTEGER
+                     constraints:
+                       nullable: false
+                       referencedColumnNames: user_id
+                       referencedTableName: user
+                       foreignKeyName: user_feed_stream_user_id
+                -  column:
+                     name: name
+                     type: VARCHAR(250)
+                     constraints:
+                       nullable: false
+              tableName: user_feed_stream
+
+  -  changeSet:
+       id: create-user_feed_stream_to_synd_feed_subscription-table
+       author: Evert Tigchelaar
+       changes:
+         -  createTable:
+              columns:
+                -  column:
+                     name: user_feed_stream_id
+                     type: INTEGER
+                     constraints:
+                       nullable: true
+                       referencedColumnNames: user_feed_stream_id
+                       referencedTableName: user_feed_stream
+                       foreignKeyName: user_feed_stream_to_synd_feed_subscription_to_user_feed_stream
+                -  column:
+                     name: synd_feed_subscription_id
+                     type: INTEGER
+                     constraints:
+                       nullable: true
+                       referencedColumnNames: synd_feed_subscription_id
+                       referencedTableName: synd_feed_subscription
+                       foreignKeyName: u_f_s_to_synd_feed_subscription_to_synd_feed_subscription
+              tableName: user_feed_stream_to_synd_feed_subscription

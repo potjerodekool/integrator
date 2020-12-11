@@ -1,7 +1,7 @@
 package com.github.potjerodekool.integrator.service
 
 import com.github.potjerodekool.integrator.data.jpa.entity.SyndFeedSubscription
-import com.github.potjerodekool.integrator.data.jpa.repository.SyndFeedSubScriptionRepositry
+import com.github.potjerodekool.integrator.data.jpa.repository.SyndFeedSubscriptionRepository
 import com.github.potjerodekool.integrator.util.*
 import com.rometools.rome.feed.synd.SyndFeed
 import com.rometools.rome.io.SyndFeedInput
@@ -21,7 +21,7 @@ import java.util.logging.Logger
 
 @Service
 class FeedProcessorService(private val feedProcessorDBService: FeedProcessorDBService,
-                           private val syndFeedSubScriptionRepositry: SyndFeedSubScriptionRepositry) {
+                           private val syndFeedSubscriptionRepository: SyndFeedSubscriptionRepository) {
 
     private companion object {
         private val LOGGER = Logger.getLogger(FeedProcessorService::class.java.name)
@@ -48,7 +48,7 @@ class FeedProcessorService(private val feedProcessorDBService: FeedProcessorDBSe
             var hasFailures = false
 
             do {
-                val slice = syndFeedSubScriptionRepositry.findAfterIdOrderedById(lastId, PageRequest.of(0, 10))
+                val slice = syndFeedSubscriptionRepository.findAfterIdOrderedById(lastId, PageRequest.of(0, 10))
 
                 if (slice.content.isNotEmpty()) {
                     slice.content.forEach { subscription ->
