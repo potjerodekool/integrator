@@ -7,7 +7,7 @@ import javax.persistence.*
 data class FeedEntryCategory(
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
-        @Column(name = "id", nullable = false)
+        @Column(name = "feedentry_category_id", nullable = false)
         val id: Int? = null,
         @Column(name = "name", nullable = false)
         val name: String)

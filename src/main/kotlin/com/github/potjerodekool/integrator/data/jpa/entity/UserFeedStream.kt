@@ -3,7 +3,13 @@ package com.github.potjerodekool.integrator.data.jpa.entity
 import javax.persistence.*
 
 @Entity
-@Table(name = "user_feed_stream")
+@Table(name = "user_feed_stream",
+        uniqueConstraints = [
+                UniqueConstraint(
+                        columnNames = ["user_id", "name"]
+                )
+        ]
+)
 data class UserFeedStream(
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -12,7 +18,7 @@ data class UserFeedStream(
         @ManyToOne
         @JoinColumn(name = "user_id", nullable = false)
         val user: User,
-        @Column(name = "name", nullable = false)
+        @Column(name = "name", nullable = false, unique = true)
         var name: String,
 
         @ManyToMany(cascade = [CascadeType.ALL])

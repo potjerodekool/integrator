@@ -8,7 +8,7 @@ import javax.persistence.*
 data class FeedEntry(
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
-        @Column(name = "id", nullable = false)
+        @Column(name = "feedentry_id", nullable = false)
         val id: Int? = null,
         @ManyToOne
         @JoinColumn(name = "subscription_id", nullable = false)

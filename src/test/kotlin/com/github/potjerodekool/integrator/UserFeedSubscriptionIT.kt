@@ -1,7 +1,6 @@
 package com.github.potjerodekool.integrator
 
 import com.github.potjerodekool.integrator.api.model.SyndFeedSubscription
-import com.github.potjerodekool.integrator.api.model.SyndFeedSubscriptionResponse
 import com.github.potjerodekool.integrator.api.model.UserFeedStreamRequest
 import com.github.potjerodekool.integrator.data.jpa.entity.User
 import com.github.potjerodekool.integrator.data.jpa.repository.UserRepository

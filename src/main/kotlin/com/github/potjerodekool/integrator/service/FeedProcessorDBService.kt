@@ -4,6 +4,7 @@ import com.github.potjerodekool.integrator.data.jpa.entity.FeedEntry
 import com.github.potjerodekool.integrator.data.jpa.entity.FeedEntryCategory
 import com.github.potjerodekool.integrator.data.jpa.entity.ScheduledJob
 import com.github.potjerodekool.integrator.data.jpa.entity.SyndFeedSubscription
+import com.github.potjerodekool.integrator.data.jpa.repository.FeedEntryCategoryRepository
 import com.github.potjerodekool.integrator.data.jpa.repository.FeedEntryRepository
 import com.github.potjerodekool.integrator.data.jpa.repository.ScheduledJobRepository
 import com.github.potjerodekool.integrator.util.toLocalDateTime
@@ -14,10 +15,12 @@ import java.time.LocalDateTime
 
 @Service
 class FeedProcessorDBService(private val scheduledJobRepository: ScheduledJobRepository,
-                             private val feedEntryRepository: FeedEntryRepository) {
+                             private val feedEntryRepository: FeedEntryRepository,
+                             private val feedEntryCategoryRepository: FeedEntryCategoryRepository) {
 
     private companion object {
         private const val JOB_NAME = "feedjob"
+        private const val descriptionLimit = 5000
     }
 
     fun canStartJob(): Boolean {
@@ -71,18 +74,21 @@ class FeedProcessorDBService(private val scheduledJobRepository: ScheduledJobRep
             val feedEntry = FeedEntry(
                     subscription = subscription,
                     link = entry.link,
-                    description = entry.description.value,
+                    description = entry.description.value.limit(descriptionLimit),
                     pubDate = entry.publishedDate.toLocalDateTime(),
                     title = entry.title)
             linkCategories(entry, feedEntry)
             feedEntryRepository.save(feedEntry)
         } else {
-            existingFeedEntry.description = entry.description.value
+            existingFeedEntry.description = entry.description.value.limit(descriptionLimit)
             existingFeedEntry.pubDate = entry.publishedDate.toLocalDateTime()
             existingFeedEntry.title = entry.title
             linkCategories(entry, existingFeedEntry )
         }
     }
+
+    private fun String.limit(max: Int): String =
+        if (this.length > max) this.substring(0, max) else this
 
     private fun linkCategories(entry: SyndEntry,
                                feedEntry: FeedEntry) {
@@ -99,7 +105,9 @@ class FeedProcessorDBService(private val scheduledJobRepository: ScheduledJobRep
                     if (categoriesToDelete.containsKey(categoryName)) {
                         categoriesToDelete.remove(categoryName)
                     } else {
-                        feedEntry.categories.add(FeedEntryCategory(name = categoryName))
+                        val category = feedEntryCategoryRepository.findByName(categoryName) ?:
+                            FeedEntryCategory(name = categoryName)
+                        feedEntry.categories.add(category)
                     }
                 }
 

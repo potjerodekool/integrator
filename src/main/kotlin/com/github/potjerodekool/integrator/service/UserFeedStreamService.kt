@@ -1,10 +1,12 @@
 package com.github.potjerodekool.integrator.service
 
 import com.github.potjerodekool.integrator.api.model.UserFeedStreamRequest
+import com.github.potjerodekool.integrator.data.jpa.entity.SyndFeedSubscription
 import com.github.potjerodekool.integrator.data.jpa.entity.UserFeedStream
 import com.github.potjerodekool.integrator.data.jpa.repository.SyndFeedSubscriptionRepository
 import com.github.potjerodekool.integrator.data.jpa.repository.UserFeedStreamRepository
 import com.github.potjerodekool.integrator.jwt.getUser
+import com.github.potjerodekool.integrator.util.AllreadyExistsException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -24,13 +26,24 @@ class UserFeedStreamService(private val userFeedStreamRepository: UserFeedStream
     }
 
     @Transactional
+    @Throws(AllreadyExistsException::class)
     fun createUserFeedStream(userFeedStreamRequest: UserFeedStreamRequest): Int {
         val user = userService.findCurrentUser()
 
-        //TODO what to do if subscription it not found?
-        //For now will filter them out.
+        val existingUserFeedStream = userFeedStreamRepository.findByUserAndName(
+            user.uuid,
+            userFeedStreamRequest.name
+        )
+
+        if  (existingUserFeedStream != null) {
+            throw AllreadyExistsException(existingUserFeedStream.id)
+        }
+
         val subscriptions = userFeedStreamRequest.subscriptions
-                .mapNotNull { syndFeedSubscriptionRepository.findByUri(it.uri) }
+                .map {
+                    syndFeedSubscriptionRepository.findByUri(it.uri) ?:
+                        SyndFeedSubscription(uri = it.uri, active = true)
+                }
                 .toMutableList()
 
         return userFeedStreamRepository.save(

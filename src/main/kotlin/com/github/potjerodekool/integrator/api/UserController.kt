@@ -6,13 +6,19 @@ import com.github.potjerodekool.integrator.api.model.UserFeedStreamRequest
 import com.github.potjerodekool.integrator.data.jpa.entity.SyndFeedSubscription
 import com.github.potjerodekool.integrator.data.jpa.entity.UserFeedStream
 import com.github.potjerodekool.integrator.service.UserFeedStreamService
+import com.github.potjerodekool.integrator.util.AllreadyExistsException
 import io.swagger.annotations.Api
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @Api
 @RestController
 @CrossOrigin
-class UserController(private val userFeedStreamService: UserFeedStreamService) {
+class UserController(private val userFeedStreamService: UserFeedStreamService,
+                     @Value("\${server.servlet.context-path}") private val contextPath: String) {
 
     @GetMapping("/user/feedstreams")
     fun getUserFeedStreams(): List<UserFeedStreamModel> {
@@ -40,8 +46,14 @@ class UserController(private val userFeedStreamService: UserFeedStreamService) {
     }
 
     @PostMapping("/user/feedstreams")
-    fun createUserFeedStream(@RequestBody userFeedStreamRequest: UserFeedStreamRequest): Int {
-        return userFeedStreamService.createUserFeedStream(userFeedStreamRequest)
+    fun creatUserFeedStream(@RequestBody userFeedStreamRequest: UserFeedStreamRequest): ResponseEntity<Int> {
+        return try {
+            ResponseEntity.ok(userFeedStreamService.createUserFeedStream(userFeedStreamRequest))
+        } catch (e: AllreadyExistsException) {
+            ResponseEntity.status(HttpStatus.CONFLICT)
+               .header(HttpHeaders.LOCATION, "$contextPath/user/feedstreams/${e.id}")
+                .build()
+        }
     }
 
     @PutMapping("/user/feedstreams/{id}")

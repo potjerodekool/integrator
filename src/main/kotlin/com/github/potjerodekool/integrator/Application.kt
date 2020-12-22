@@ -10,12 +10,19 @@ import org.springframework.messaging.MessageHandler
 import org.springframework.messaging.support.GenericMessage
  */
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.json.JsonMapper
+import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.fasterxml.jackson.module.kotlin.jsonMapper
 import com.github.potjerodekool.integrator.service.Scheduler
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder
 import javax.annotation.PostConstruct
+
 
 // https://medium.com/@venkivenki4b6/spring-dynamically-register-beans-in-4-ways-at-run-time-c1dc45dcbeb9
 @SpringBootApplication
@@ -54,6 +61,14 @@ class Application {
     }
 
      */
+
+    @Bean
+    fun customObjectMapper(): ObjectMapper {
+        return jsonMapper {
+            addModule(KotlinModule())
+        }
+    }
+
 }
 
 fun main(args: Array<String>) {
